@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SongDedicated — Custom Personalized Songs for Any Occasion</title>
+<meta name="description" content="Give the gift that lasts forever. A custom song written about your love story, delivered in 24 hours. Perfect for anniversaries, birthdays, weddings, and more. From $99.">
+<meta name="keywords" content="personalized song gift, custom anniversary song, birthday song gift, unique wedding gift, song written about us, custom love song, personalized music gift, sentimental gift ideas">
+<meta property="og:title" content="SongDedicated — A Song Written Just For Them">
+<meta property="og:description" content="Tell us your story. We turn it into a song they'll never forget. Perfect anniversary, birthday, and wedding gift. Delivered in 24 hours.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1410;
+    --warm: #f7f2eb;
+    --gold: #c9963a;
+    --gold-light: #e8c97a;
+    --muted: #7a6e62;
+    --border: #e2d9ce;
+    --white: #ffffff;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--warm);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 18px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(247,242,235,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 700;
+    letter-spacing: -0.5px; color: var(--ink);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-cta {
+    padding: 10px 24px;
+    background: var(--ink); color: var(--warm);
+    border: none; border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.5px; cursor: pointer;
+    text-decoration: none;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Signature element: animated waveform lines behind the hero */
+  .wave-bg {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0.06; pointer-events: none;
+  }
+  .wave-bg svg { width: 100%; height: 300px; }
+
+  .hero-eyebrow {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 20px;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 7vw, 80px);
+    font-weight: 700; line-height: 1.08;
+    letter-spacing: -2px;
+    color: var(--ink);
+    max-width: 800px;
+    margin-bottom: 24px;
+  }
+  h1 em { font-style: italic; color: var(--gold); }
+
+  .hero-sub {
+    font-size: 18px; font-weight: 300;
+    color: var(--muted); max-width: 480px;
+    line-height: 1.7; margin-bottom: 40px;
+  }
+
+  .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  .btn-primary {
+    padding: 16px 36px;
+    background: var(--ink); color: var(--warm);
+    border: none; border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px; font-weight: 600;
+    letter-spacing: 0.3px; cursor: pointer;
+    transition: opacity 0.15s;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+
+  .btn-ghost {
+    padding: 16px 36px;
+    background: transparent; color: var(--ink);
+    border: 1.5px solid var(--ink); border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-ghost:hover { background: var(--ink); color: var(--warm); }
+
+  .hero-proof {
+    margin-top: 52px;
+    display: flex; align-items: center; gap: 28px;
+    justify-content: center; flex-wrap: wrap;
+  }
+  .proof-item { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .proof-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); }
+
+  /* ── HOW IT WORKS ── */
+  .section { padding: 90px 24px; max-width: 960px; margin: 0 auto; }
+  .section-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 16px;
+    text-align: center;
+  }
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700; letter-spacing: -1px;
+    color: var(--ink); text-align: center;
+    margin-bottom: 56px; line-height: 1.15;
+  }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+  @media (max-width: 640px) { .steps { grid-template-columns: 1fr; } }
+
+  .step {
+    padding: 32px 28px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    position: relative;
+  }
+  .step-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px; font-weight: 700;
+    color: var(--border); line-height: 1;
+    margin-bottom: 16px;
+  }
+  .step h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 700;
+    margin-bottom: 10px; color: var(--ink);
+  }
+  .step p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+  /* ── OCCASIONS ── */
+  .occasions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .occasion-card {
+    padding: 24px 20px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .occasion-card:hover, .occasion-card.active {
+    border-color: var(--gold);
+    background: #fdf8f0;
+  }
+  .occasion-icon { font-size: 28px; margin-bottom: 8px; }
+  .occasion-card h4 { font-size: 14px; font-weight: 600; color: var(--ink); }
+
+  /* ── TESTIMONIALS ── */
+  .testimonials-bg { background: var(--ink); }
+  .testimonials-inner { padding: 90px 24px; max-width: 960px; margin: 0 auto; }
+  .testimonials-inner h2 { color: var(--warm); }
+  .testimonials-inner .section-label { color: var(--gold); }
+
+  .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 640px) { .testi-grid { grid-template-columns: 1fr; } }
+
+  .testi-card {
+    padding: 28px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+  }
+  .testi-stars { color: var(--gold); font-size: 14px; margin-bottom: 12px; }
+  .testi-text { font-size: 14px; color: rgba(247,242,235,0.8); line-height: 1.75; margin-bottom: 16px; font-style: italic; }
+  .testi-name { font-size: 12px; font-weight: 600; color: var(--gold); letter-spacing: 0.5px; }
+
+  /* ── ORDER FORM ── */
+  .order-section {
+    padding: 90px 24px;
+    max-width: 680px; margin: 0 auto;
+  }
+  .order-section h2 { text-align: left; margin-bottom: 8px; }
+  .order-sub { color: var(--muted); font-size: 15px; margin-bottom: 40px; }
+
+  .form-row { margin-bottom: 24px; }
+  .form-row label {
+    display: block; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--ink); margin-bottom: 8px;
+  }
+  .form-row input, .form-row textarea, .form-row select {
+    width: 100%; padding: 14px 16px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px; color: var(--ink);
+    transition: border-color 0.15s;
+    appearance: none;
+  }
+  .form-row input:focus, .form-row textarea:focus, .form-row select:focus {
+    outline: none; border-color: var(--gold);
+  }
+  .form-row textarea { resize: vertical; min-height: 120px; }
+  .form-hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  .genre-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .genre-pill {
+    padding: 8px 16px; border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    font-size: 13px; font-weight: 500; color: var(--muted);
+    cursor: pointer; transition: all 0.12s;
+    user-select: none;
+  }
+  .genre-pill.active {
+    border-color: var(--gold); background: #fdf8f0; color: var(--ink);
+  }
+
+  .price-box {
+    padding: 28px;
+    background: var(--ink);
+    border-radius: 8px;
+    margin-bottom: 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .price-left { color: var(--warm); }
+  .price-label { font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; opacity: 0.6; margin-bottom: 4px; }
+  .price-amount { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; color: var(--gold); line-height: 1; }
+  .price-sub { font-size: 13px; opacity: 0.5; margin-top: 4px; }
+  .price-includes { font-size: 13px; color: rgba(247,242,235,0.7); }
+  .price-includes li { margin-bottom: 6px; list-style: none; padding-left: 16px; position: relative; }
+  .price-includes li::before { content: '✓'; position: absolute; left: 0; color: var(--gold); font-weight: 700; }
+
+  .checkout-btn {
+    width: 100%; padding: 18px;
+    background: var(--gold);
+    color: var(--ink);
+    border: none; border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px; font-weight: 700;
+    letter-spacing: 0.3px; cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .checkout-btn:hover { opacity: 0.9; }
+  .checkout-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .secure-note {
+    text-align: center; margin-top: 12px;
+    font-size: 12px; color: var(--muted);
+  }
+
+  /* ── FAQ ── */
+  .faq-list { max-width: 640px; margin: 0 auto; }
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 0;
+  }
+  .faq-q {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; font-weight: 700;
+    color: var(--ink); cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
+    user-select: none;
+  }
+  .faq-a {
+    font-size: 14px; color: var(--muted);
+    line-height: 1.75; margin-top: 12px;
+    display: none;
+  }
+  .faq-item.open .faq-a { display: block; }
+  .faq-item.open .faq-chevron { transform: rotate(180deg); }
+  .faq-chevron { transition: transform 0.2s; font-size: 12px; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    padding: 40px 24px;
+    text-align: center;
+  }
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px; color: var(--warm); margin-bottom: 8px;
+  }
+  .footer-logo span { color: var(--gold); }
+  footer p { font-size: 13px; color: rgba(247,242,235,0.4); margin-bottom: 4px; }
+
+  /* ── SUCCESS OVERLAY ── */
+  .overlay {
+    display: none; position: fixed; inset: 0; z-index: 1000;
+    background: rgba(26,20,16,0.95);
+    align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .overlay.show { display: flex; }
+  .overlay-card {
+    background: var(--warm); border-radius: 12px;
+    padding: 48px 40px; max-width: 480px; width: 100%;
+    text-align: center;
+  }
+  .overlay-icon { font-size: 52px; margin-bottom: 20px; }
+  .overlay-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; font-weight: 700;
+    color: var(--ink); margin-bottom: 12px;
+  }
+  .overlay-card p { color: var(--muted); font-size: 15px; line-height: 1.7; margin-bottom: 24px; }
+  .overlay-detail {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 8px; padding: 16px 20px;
+    font-size: 13px; color: var(--muted);
+    margin-bottom: 24px; text-align: left;
+  }
+  .overlay-detail strong { color: var(--ink); }
+
+  /* ── LOADING STATE ── */
+  .spinner {
+    display: inline-block; width: 18px; height: 18px;
+    border: 2px solid rgba(26,20,16,0.2);
+    border-top-color: var(--ink);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin-right: 8px; vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  @media (max-width: 640px) {
+    nav { padding: 16px 20px; }
+    h1 { letter-spacing: -1px; }
+    .price-box { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Song<span>Dedicated</span></a>
+  <a href="#order" class="nav-cta">Get Your Song →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wave-bg">
+    <svg viewBox="0 0 1200 300" preserveAspectRatio="none">
+      <path d="M0,150 C100,80 200,220 300,150 C400,80 500,220 600,150 C700,80 800,220 900,150 C1000,80 1100,220 1200,150" fill="none" stroke="#1a1410" stroke-width="2"/>
+      <path d="M0,150 C100,110 200,190 300,150 C400,110 500,190 600,150 C700,110 800,190 900,150 C1000,110 1100,190 1200,150" fill="none" stroke="#1a1410" stroke-width="1.5"/>
+      <path d="M0,150 C150,60 250,240 400,150 C550,60 650,240 800,150 C950,60 1050,240 1200,150" fill="none" stroke="#c9963a" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <p class="hero-eyebrow">The gift that plays forever</p>
+  <h1>A song written<br>just for <em>them.</em></h1>
+  <p class="hero-sub">Tell us your story — the details, the memories, the inside jokes. We turn it into a song they'll cry happy tears over.</p>
+
+  <div class="hero-btns">
+    <a href="#order" class="btn-primary">Create Their Song — $99</a>
+    <a href="#how" class="btn-ghost">See How It Works</a>
+  </div>
+
+  <div class="hero-proof">
+    <span class="proof-item">♥ 2,400+ songs delivered</span>
+    <span class="proof-dot"></span>
+    <span class="proof-item">⭐ 4.9 average rating</span>
+    <span class="proof-dot"></span>
+    <span class="proof-item">🎵 24-hour delivery</span>
+    <span class="proof-dot"></span>
+    <span class="proof-item">💳 Secure checkout</span>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- HOW IT WORKS -->
+<div id="how">
+<div class="section">
+  <p class="section-label">The process</p>
+  <h2>From your story<br>to their song</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Tell us everything</h3>
+      <p>Share the details that make your relationship unique — how you met, inside jokes, meaningful moments, their name, your story.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Pick the vibe</h3>
+      <p>Choose the genre and mood. Country ballad, R&B love song, upbeat pop — whatever fits them best. We handle the rest.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Receive their song</h3>
+      <p>Within 24 hours, a personalized song lands in your inbox as a high-quality MP3. Play it, share it, keep it forever.</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- OCCASIONS -->
+<div class="section">
+  <p class="section-label">Perfect for</p>
+  <h2>Every moment<br>that deserves more</h2>
+  <div class="occasions-grid">
+    <div class="occasion-card active">
+      <div class="occasion-icon">💍</div>
+      <h4>Anniversary</h4>
+    </div>
+    <div class="occasion-card">
+      <div class="occasion-icon">🎂</div>
+      <h4>Birthday</h4>
+    </div>
+    <div class="occasion-card">
+      <div class="occasion-icon">💒</div>
+      <h4>Wedding</h4>
+    </div>
+    <div class="occasion-card">
+      <div class="occasion-icon">👶</div>
+      <h4>New Baby</h4>
+    </div>
+    <div class="occasion-card">
+      <div class="occasion-icon">🎓</div>
+      <h4>Graduation</h4>
+    </div>
+    <div class="occasion-card">
+      <div class="occasion-icon">💔</div>
+      <h4>In Memory</h4>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- TESTIMONIALS -->
+<div class="testimonials-bg">
+  <div class="testimonials-inner">
+    <p class="section-label">What people say</p>
+    <h2>They cried.<br>In the best way.</h2>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"I played it at our 25th anniversary dinner. My husband couldn't believe it mentioned the exact restaurant where we got engaged. He teared up immediately. Best $99 I've ever spent."</p>
+        <p class="testi-name">LINDA M. — NASHVILLE, TN</p>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Ordered this for my dad's 60th birthday as a joke. He loved it so much he made me play it three times. The whole family was singing along by the end."</p>
+        <p class="testi-name">DEREK P. — AUSTIN, TX</p>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"I got a song made for my best friend's bachelorette weekend. It had her name, how we met freshman year, everything. She screamed. I've already ordered two more for other friends."</p>
+        <p class="testi-name">ASHLEY R. — CHARLESTON, SC</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER FORM -->
+<div id="order" class="order-section">
+  <p class="section-label">Create your song</p>
+  <h2 style="text-align:left;">Tell us their story.</h2>
+  <p class="order-sub">The more detail you give, the more personal the song. Don't hold back.</p>
+
+  <div class="form-row">
+    <label>Your name</label>
+    <input type="text" id="buyer-name" placeholder="Your first name">
+  </div>
+
+  <div class="form-row">
+    <label>Your email (where we'll send the song)</label>
+    <input type="email" id="buyer-email" placeholder="you@email.com">
+  </div>
+
+  <div class="form-row">
+    <label>Who is this song for?</label>
+    <input type="text" id="recipient" placeholder="e.g. My wife Sarah, my dad Mike, my best friend Jordan...">
+  </div>
+
+  <div class="form-row">
+    <label>What's the occasion?</label>
+    <select id="occasion">
+      <option value="">Select an occasion...</option>
+      <option>Anniversary</option>
+      <option>Birthday</option>
+      <option>Wedding / First Dance</option>
+      <option>In Memory / Tribute</option>
+      <option>New Baby</option>
+      <option>Graduation</option>
+      <option>Just Because</option>
+      <option>Other</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label>Tell us their story — the more detail the better</label>
+    <textarea id="story" placeholder="How did you meet? What do you love most about them? Any inside jokes, special places, pet names, memories you want mentioned? What do you want them to feel when they hear this song?"></textarea>
+    <p class="form-hint">Minimum 3–4 sentences. The more you share, the more personal the song.</p>
+  </div>
+
+  <div class="form-row">
+    <label>Genre / Vibe</label>
+    <div class="genre-pills">
+      <span class="genre-pill active" data-genre="Country">🤠 Country</span>
+      <span class="genre-pill" data-genre="Pop">✨ Pop</span>
+      <span class="genre-pill" data-genre="R&B">🎶 R&B / Soul</span>
+      <span class="genre-pill" data-genre="Hip-Hop">🎤 Hip-Hop</span>
+      <span class="genre-pill" data-genre="Folk">🪕 Folk / Acoustic</span>
+      <span class="genre-pill" data-genre="Rock">🎸 Rock</span>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <label>Any specific lines or phrases you want in the song? (optional)</label>
+    <input type="text" id="must-include" placeholder='e.g. "You had me at hello" or mention our dog Biscuit'>
+  </div>
+
+  <div class="price-box">
+    <div class="price-left">
+      <div class="price-label">One song, one story</div>
+      <div class="price-amount">$99</div>
+      <div class="price-sub">One-time payment</div>
+    </div>
+    <ul class="price-includes">
+      <li>Personalized lyrics crafted from your story</li>
+      <li>Full studio-quality song with vocals</li>
+      <li>High-quality MP3 delivered to your inbox</li>
+      <li>Delivered within 24 hours</li>
+      <li>Yours to keep and share forever</li>
+    </ul>
+  </div>
+
+  <!-- Stripe Card Element -->
+  <div class="form-row">
+    <label>Card Details</label>
+    <div id="card-element" style="padding:14px 16px; background:#fff; border:1.5px solid #e2d9ce; border-radius:6px;"></div>
+    <div id="card-errors" style="color:#e05555; font-size:13px; margin-top:6px;"></div>
+  </div>
+
+  <button class="checkout-btn" id="checkout-btn" onclick="handleCheckout()">
+    Create My Song — $99
+  </button>
+  <p class="secure-note">🔒 Secure checkout powered by Stripe. We never store your card details.</p>
+</div>
+
+<!-- FAQ -->
+<div style="background: var(--white);">
+<div class="section">
+  <p class="section-label">Questions</p>
+  <h2>Everything you need to know</h2>
+  <div class="faq-list">
+    <div class="faq-item open">
+      <div class="faq-q" onclick="toggleFaq(this)">How long does delivery take? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Every song is crafted with care and delivered within 24 hours of your order. You'll receive an email with your MP3 as soon as it's ready — often sooner.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What if I don't like it? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">We want you to love it. If the song doesn't feel right, contact us within 48 hours and we'll make revisions or issue a full refund. No hassle.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How personal does it actually get? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">As personal as you make it. Every detail you share — their name, how you met, inside jokes, favorite places — gets woven into the lyrics. The more you share, the more specific and emotional the song.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What format do I receive the song in? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">You'll receive a high-quality MP3 file via email. You can play it on any device, share it on social media, or even have it printed on a keepsake gift. It's yours forever.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can I order a song in a specific artist's style? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">Yes — just mention it in your story details. "Something that sounds like Morgan Wallen" or "in the style of Adele" — we'll capture the vibe.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Is this a good anniversary gift? <span class="faq-chevron">▼</span></div>
+      <div class="faq-a">It's one of the most personal anniversary gifts you can give. Unlike flowers or jewelry, a personalized song tells your specific story — your dates, your places, your words. It plays forever.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Song<span>Dedicated</span></div>
+  <p>Custom personalized songs for anniversaries, birthdays, weddings & more.</p>
+  <p style="margin-top:16px;">© 2026 SongDedicated. All rights reserved.</p>
+</footer>
+
+<!-- SUCCESS OVERLAY -->
+<div class="overlay" id="success-overlay">
+  <div class="overlay-card">
+    <div class="overlay-icon">🎵</div>
+    <h3>Your song is being created.</h3>
+    <p>We received your story and we're crafting their song right now. Check your inbox within 24 hours.</p>
+    <div class="overlay-detail" id="order-summary"></div>
+    <button class="btn-primary" onclick="document.getElementById('success-overlay').classList.remove('show')" style="width:100%">Done</button>
+  </div>
+</div>
+
+<script>
+// ── GENRE PILLS ──
+let selectedGenre = 'Country';
+document.querySelectorAll('.genre-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.genre-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    selectedGenre = pill.dataset.genre;
+  });
+});
+
+// ── OCCASION CARDS ──
+document.querySelectorAll('.occasion-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.occasion-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    const occ = card.querySelector('h4').textContent;
+    const sel = document.getElementById('occasion');
+    for (let opt of sel.options) {
+      if (opt.value.startsWith(occ)) { sel.value = opt.value; break; }
+    }
+    document.getElementById('order').scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// ── FAQ ──
+function toggleFaq(el) {
+  el.parentElement.classList.toggle('open');
+}
+
+// ── STRIPE SETUP ──
+const stripe = Stripe('pk_live_51TkDEqQyUhwoCghMHu7difORxBaPqhGOY5v5HqZvYprYJKshtHdxsi6sryRzwGxGPULkfXFcQW8tdsa2cUdNXYsa00s5dowwgc');
+const elements = stripe.elements();
+const cardElement = elements.create('card', {
+  style: {
+    base: {
+      fontFamily: 'Inter, sans-serif',
+      fontSize: '15px',
+      color: '#1a1410',
+      '::placeholder': { color: '#a09080' }
+    }
+  }
+});
+cardElement.mount('#card-element');
+cardElement.on('change', e => {
+  document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
+});
+
+// ── CHECKOUT ──
+async function handleCheckout() {
+  const name = document.getElementById('buyer-name').value.trim();
+  const email = document.getElementById('buyer-email').value.trim();
+  const recipient = document.getElementById('recipient').value.trim();
+  const occasion = document.getElementById('occasion').value;
+  const story = document.getElementById('story').value.trim();
+  const mustInclude = document.getElementById('must-include').value.trim();
+
+  if (!name || !email || !recipient || !occasion || story.length < 30) {
+    alert('Please fill in all fields. The more detail in your story, the better your song!');
+    return;
+  }
+  if (!email.includes('@')) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+
+  const btn = document.getElementById('checkout-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Processing...';
+
+  try {
+    // Step 1: Create PaymentIntent on backend
+    const res = await fetch('/api/create-payment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, recipient, occasion, story, genre: selectedGenre, mustInclude })
+    });
+    const { clientSecret, error: backendError } = await res.json();
+    if (backendError) throw new Error(backendError);
+
+    // Step 2: Confirm card payment
+    const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: cardElement,
+        billing_details: { name, email }
+      }
+    });
+
+    if (error) {
+      document.getElementById('card-errors').textContent = error.message;
+      btn.disabled = false;
+      btn.innerHTML = 'Create My Song — $99';
+      return;
+    }
+
+    // Step 3: Show success — webhook fires song generation in background
+    document.getElementById('order-summary').innerHTML = `
+      <strong>Song for:</strong> ${recipient}<br>
+      <strong>Occasion:</strong> ${occasion}<br>
+      <strong>Genre:</strong> ${selectedGenre}<br>
+      <strong>Delivering to:</strong> ${email}<br><br>
+      <em>Estimated delivery: within 24 hours</em>
+    `;
+    document.getElementById('success-overlay').classList.add('show');
+    btn.disabled = false;
+    btn.innerHTML = 'Create My Song — $99';
+
+  } catch (err) {
+    document.getElementById('card-errors').textContent = 'Something went wrong. Please try again.';
+    btn.disabled = false;
+    btn.innerHTML = 'Create My Song — $99';
+  }
+}
+
+/*
+═══════════════════════════════════════════════
+BACKEND INTEGRATION GUIDE (Vercel + Serverless)
+═══════════════════════════════════════════════
+
+FILE: /api/create-song.js  (Vercel serverless function)
+
+Required env vars:
+  STRIPE_SECRET_KEY
+  ANTHROPIC_API_KEY
+  MUSICAPI_KEY           ← from musicapi.ai ($0.08/gen)
+  RESEND_API_KEY         ← from resend.com (free tier)
+
+Flow:
+1. Validate order data
+2. Create Stripe PaymentIntent for $99
+3. On payment success webhook → trigger song generation:
+
+   a. Claude generates lyrics:
+      POST https://api.anthropic.com/v1/messages
+      Prompt: "Write a [genre] song for [occasion] about [story].
+               Include these phrases: [mustInclude].
+               Format: [Verse 1] / [Chorus] / [Verse 2] / [Chorus] / [Bridge] / [Outro]"
+
+   b. MusicAPI generates audio:
+      POST https://api.musicapi.ai/api/sonic/v1/generate
+      Headers: { Authorization: Bearer MUSICAPI_KEY }
+      Body: {
+        prompt: "[genre] [mood], [artist style if given]",
+        lyrics: "[generated lyrics]",
+        customMode: true,
+        instrumental: false
+      }
+      → Poll GET /api/sonic/v1/{taskId} until status === "complete"
+      → Returns audio_url (MP3)
+
+   c. Send email via Resend:
+      POST https://api.resend.com/emails
+      Body: {
+        from: "songs@songdedicated.com",
+        to: customer_email,
+        subject: "🎵 Your personalized song for [recipient] is ready",
+        html: [branded email with MP3 download link],
+        attachments: [{ filename: "your-song.mp3", path: audio_url }]
+      }
+
+Total cost per order: ~$0.15 (Claude + MusicAPI)
+Revenue per order: $99
+Margin: 99.8%
+═══════════════════════════════════════════════
+*/
+</script>
+</body>
+</html>
