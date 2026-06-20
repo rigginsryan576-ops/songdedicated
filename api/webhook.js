@@ -177,6 +177,7 @@ async function sendSongEmail(resend, email, recipient, occasion, lyrics, audioUr
   const hasAudio = !!audioUrl;
   await resend.emails.send({
     from: 'SongDedicated <songs@songdedicated.com>',
+    scheduledAt: new Date(Date.now() + 18 * 60 * 60 * 1000).toISOString(),
     to: email,
     subject: `🎵 Your personalized song for ${recipient} is ready`,
     html: `
